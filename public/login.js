@@ -1,6 +1,5 @@
 /* login.js */
-const API = "http://localhost:3000";
-
+const API = window.location.origin;
 // ========== HELPER FUNCTIONS ==========
 
 // Toggle loading state
