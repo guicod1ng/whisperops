@@ -1,4 +1,4 @@
-const API = "http://localhost:3000";
+const API = window.location.origin;
 const TOKEN_KEY = "whisperops_token";
 
 if (!localStorage.getItem(TOKEN_KEY)) {
