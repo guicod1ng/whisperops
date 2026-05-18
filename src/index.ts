@@ -9,11 +9,11 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.static(path.join(__dirname, "../public")));
 app.use(express.json());
 
-app.get("/ping", (req, res) => res.json({ status: "online" }));
 app.get("/", (req, res) => res.sendFile("landing.html", { root: "public" }));
+app.get("/ping", (req, res) => res.json({ status: "online" }));
+app.use(express.static(path.join(__dirname, "../public")));
 app.use("/auth", authRoutes);
 app.use("/upload", uploadRoutes);
 app.use("/metricas", metricasRoutes);
