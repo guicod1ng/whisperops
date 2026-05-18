@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WhisperOps — Inteligência operacional invisível para sua empresa">
+  <title>WhisperOps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar minimalista -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">○</div>
+      <div class="sidebar-icons">
+        <button class="sidebar-icon active" data-view="overview" title="Overview">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </button>
+        <button class="sidebar-icon" data-view="signals" title="Signals">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </button>
+        <button class="sidebar-icon" data-view="timeline" title="Timeline">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </button>
+        <button class="sidebar-icon" data-view="team" title="Team">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </button>
+      </div>
+      <div class="sidebar-footer">
+        <button class="sidebar-icon" data-view="settings" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="sidebar-icon" id="logoutBtn" title="Sair">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+      <!-- View: Overview (padrão) -->
+      <div id="viewOverview" class="view active">
+        <header class="view-header">
+          <div>
+            <h1>Overview</h1>
+            <p class="view-subtitle">Inteligência operacional em tempo real</p>
+          </div>
+          <div class="view-actions">
+            <span class="live-indicator"><span class="live-dot"></span> Ao vivo</span>
+          </div>
+        </header>
+
+        <!-- KPIs minimalistas -->
+        <div class="kpi-row">
+          <div class="kpi">
+            <span class="kpi-value" id="kpiConversas">—</span>
+            <span class="kpi-label">conversas analisadas</span>
+            <span class="kpi-change positive" id="kpiConversasChange"></span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-value" id="kpiTempo">—</span>
+            <span class="kpi-label">tempo médio de resposta</span>
+            <span class="kpi-change negative" id="kpiTempoChange"></span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-value" id="kpiScore">—</span>
+            <span class="kpi-label">score de atendimento</span>
+            <span class="kpi-change positive" id="kpiScoreChange"></span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-value" id="kpiLeads">—</span>
+            <span class="kpi-label">leads ativos</span>
+            <span class="kpi-change" id="kpiLeadsChange"></span>
+          </div>
+        </div>
+
+        <!-- Signals + Heatmap lado a lado -->
+        <div class="insight-grid">
+          <section class="panel panel-signals" id="signalsPanel">
+            <div class="panel-header">
+              <h2>⚡ Signals</h2>
+              <span class="panel-count" id="signalsCount">0</span>
+            </div>
+            <div class="signals-list" id="signalsList">
+              <p class="empty-text">Nenhum sinal detectado ainda.</p>
+            </div>
+          </section>
+
+          <section class="panel panel-heatmap">
+            <div class="panel-header">
+              <h2>🔥 Heatmap Emocional</h2>
+              <span class="panel-subtitle">Hoje</span>
+            </div>
+            <div class="heatmap-grid" id="heatmapGrid"></div>
+          </section>
+        </div>
+
+        <!-- Timeline minimalista -->
+        <section class="panel panel-timeline">
+          <div class="panel-header">
+            <h2>🕐 Timeline</h2>
+            <span class="panel-subtitle">Últimas interações</span>
+          </div>
+          <div class="timeline-list" id="timelineList">
+            <p class="empty-text">Carregando...</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- View: Signals (placeholder) -->
+      <div id="viewSignals" class="view">
+        <header class="view-header">
+          <h1>⚡ Signals</h1>
+          <p class="view-subtitle">Eventos inteligentes detectados automaticamente</p>
+        </header>
+        <div class="signals-full" id="signalsFull"></div>
+      </div>
+
+      <!-- View: Timeline (placeholder) -->
+      <div id="viewTimeline" class="view">
+        <header class="view-header">
+          <h1>🕐 Timeline</h1>
+          <p class="view-subtitle">Todas as interações em ordem cronológica</p>
+        </header>
+        <div class="timeline-full" id="timelineFull"></div>
+      </div>
+
+      <!-- View: Team (placeholder) -->
+      <div id="viewTeam" class="view">
+        <header class="view-header">
+          <h1>👥 Team</h1>
+          <p class="view-subtitle">Desempenho por atendente</p>
+        </header>
+        <div class="team-grid" id="teamGrid"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
