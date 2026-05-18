@@ -129,7 +129,14 @@ loginForm.addEventListener('submit', async (e) => {
     
     if (res.ok) {
       localStorage.setItem('whisperops_token', data.token);
-      localStorage.setItem('whisperops_user', JSON.stringify(data.usuario));
+      if (document.getElementById('lembrar').checked) {
+        localStorage.setItem('whisperops_email', email);
+      } else {
+        localStorage.removeItem('whisperops_email');
+      }
+      if (data.usuario) {
+        localStorage.setItem('whisperops_user', JSON.stringify(data.usuario));
+      }
       window.location.href = '/dashboard.html';
     } else {
       showError(data.erro || 'Erro ao fazer login');

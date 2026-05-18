@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
+import fs from "fs/promises";
 import prisma from "../config/prisma";
 import authMiddleware from "../middlewares/authMiddlewares";
 import { gerarMetricas } from "../services/metricasService";
@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    if (path.extname(file.originalname) !== ".txt") {
+    if (path.extname(file.originalname).toLowerCase() !== ".txt") {
       return cb(new Error("Apenas arquivos .txt são permitidos"));
     }
     cb(null, true);
@@ -30,8 +30,11 @@ router.post("/", authMiddleware, upload.single("conversa"), async (req: Request,
   const filePath = req.file.path;
 
   try {
-    const conteudo = fs.readFileSync(filePath, "utf-8");
-    const linhas = conteudo.split("\n").filter((l) => l.trim());
+    const conteudo = await fs.readFile(filePath, "utf-8");
+    const linhas = conteudo
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
 
     let atendente = await prisma.atendente.findFirst({
       where: { empresa_id: empresaId },
@@ -55,13 +58,14 @@ router.post("/", authMiddleware, upload.single("conversa"), async (req: Request,
       },
     });
 
-    for (const linha of linhas) {
+    const agora = new Date();
+    for (const [index, linha] of linhas.entries()) {
       await prisma.mensagem.create({
         data: {
           conversa_id: conversa.id,
           remetente: linha.includes(" - ") ? linha.split(" - ")[0] : "Desconhecido",
           texto: linha,
-          data_hora: new Date(),
+          data_hora: new Date(agora.getTime() + index * 1000),
         },
       });
     }
@@ -71,6 +75,8 @@ router.post("/", authMiddleware, upload.single("conversa"), async (req: Request,
   } catch (erro) {
     console.error(erro);
     res.status(500).json({ erro: "Erro ao processar o arquivo" });
+  } finally {
+    await fs.unlink(filePath).catch(() => undefined);
   }
 });
 

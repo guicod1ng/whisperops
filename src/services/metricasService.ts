@@ -36,18 +36,35 @@ export async function gerarMetricas(conversa_id: number) {
   }
 
   const tempoMedio = respostas > 0 ? Math.round(tempoTotal / respostas) : 0;
-  const palavras = mensagens.map((m) => m.texto).join(" ");
-  const palavrasChave = "orçamento, prazo, preço, obrigado, ok, combinado";
   const textos = mensagens.map((m) => m.texto);
-  const resumo_ia = await gerarInsightIA(textos);
+  const descricao = textos.join(" ").toLowerCase();
+
+  const palavrasChave = ["orçamento", "prazo", "preço", "obrigado", "ok", "combinado"]
+    .filter((palavra) => descricao.includes(palavra))
+    .join(", ");
+
+  const sentimento = descricao.includes("não") || descricao.includes("ruim") || descricao.includes("cancelado")
+    ? "negativo"
+    : descricao.includes("obrigado") || descricao.includes("combinado") || descricao.includes("perfeito")
+    ? "positivo"
+    : "neutro";
+
+  const score = sentimento === "positivo" ? 8.2 : sentimento === "negativo" ? 3.8 : 5.7;
+
+  let resumo_ia = "Análise indisponível.";
+  try {
+    resumo_ia = await gerarInsightIA(textos);
+  } catch (erro) {
+    console.error("Erro ao gerar insight IA", erro);
+  }
 
   await prisma.metrica.create({
     data: {
       conversa_id,
       tempo_resposta: tempoMedio,
       palavras_chave: palavrasChave,
-      sentimento: "positivo",
-      score: 7.5,
+      sentimento,
+      score,
       resumo_ia,
     },
   });
